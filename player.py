@@ -28,6 +28,14 @@ class Player(CircleShape):
     def move(self, dt: int, dir: int) -> None:
         direction = pygame.Vector2(0, 1).rotate(dir)
         self.position += direction * conf.PLAYER_SPEED * dt
+        if self.position.x > conf.SCREEN_WIDTH - conf.PLAYER_RADIUS:
+            self.position.x = conf.SCREEN_WIDTH - conf.PLAYER_RADIUS
+        if self.position.x < conf.PLAYER_RADIUS:
+            self.position.x = conf.PLAYER_RADIUS
+        if self.position.y > conf.SCREEN_HEIGHT - conf.PLAYER_RADIUS:
+            self.position.y = conf.SCREEN_HEIGHT - conf.PLAYER_RADIUS
+        if self.position.y < conf.PLAYER_RADIUS:
+            self.position.y = conf.PLAYER_RADIUS
         
     def shoot(self) -> None:
         shot = Shot(self.position.x, self.position.y)
