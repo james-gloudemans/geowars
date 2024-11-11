@@ -15,8 +15,10 @@ def main():
     clock = pygame.time.Clock()
     dt: int = 0
     score: int = 0
+    lives: int = 3
     game_font = pygame.font.SysFont('Comic Sans MS', 30)
     score_text = game_font.render(f'Score: {score}', False, (255,255,255))
+    lives_text = game_font.render(f'Lives: {lives}', False, (255,255,255))
 
     updatables = pygame.sprite.Group()
     drawables = pygame.sprite.Group()
@@ -42,8 +44,21 @@ def main():
             obj.draw(screen)
         for enemy in enemies:
             if enemy.collides_with(player):
-                print("Game over!")
-                exit()
+                lives -= 1
+                if lives == 0:
+                    print("Game over!")
+                    exit()
+                else:
+                    for enemy in enemies:
+                        enemy.kill()
+                    for shot in shots:
+                        shot.kill()
+                    lives_text = game_font.render(f'Lives: {lives}', False, (255,255,255))
+                    player.kill()
+                    player = Player(conf.SCREEN_WIDTH/2, conf.SCREEN_HEIGHT/2)
+                    enemy_spawner.kill()
+                    enemy_spawner = EnemyField()
+                    break
             for shot in shots:
                 if enemy.collides_with(shot):
                     score += enemy.score
@@ -52,6 +67,7 @@ def main():
                     shot.kill()
 
         screen.blit(score_text, (conf.TEXT_PADDING, 0))
+        screen.blit(lives_text, (conf.SCREEN_WIDTH - (lives_text.get_width() + conf.TEXT_PADDING), 0))
         pygame.display.flip()
         dt = clock.tick(60) / 1000
     
