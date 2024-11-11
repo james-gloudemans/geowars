@@ -4,6 +4,8 @@ from circle_enemy import BasicCircleEnemy
 import conf
 from enemy_field import EnemyField
 from player import Player
+from powerup import Powerup
+from powerup_field import PowerupField
 from shot import Shot
 
 def main():
@@ -24,14 +26,18 @@ def main():
     drawables = pygame.sprite.Group()
     shots = pygame.sprite.Group()
     enemies = pygame.sprite.Group()
+    powerups = pygame.sprite.Group()
 
     Player.containers = (updatables, drawables)
     Shot.containers = (shots, updatables, drawables)
+    Powerup.containers = (powerups, updatables, drawables)
+    PowerupField.containers = (updatables)
     EnemyField.containers = (updatables)
     BasicCircleEnemy.containers = (enemies, updatables, drawables)
 
     player = Player(conf.SCREEN_WIDTH/2, conf.SCREEN_HEIGHT/2)
     enemy_spawner = EnemyField()
+    powerup_spawner = PowerupField()
 
     while True:
         for event in pygame.event.get():
@@ -65,6 +71,11 @@ def main():
                     score_text = game_font.render(f'Score: {score}', False, (255,255,255))
                     enemy.die()
                     shot.kill()
+        for powerup in powerups:
+            if powerup.collides_with(player):
+                powerup.kill()
+                if player.powerups[powerup.kind] < 3:
+                    player.powerups[powerup.kind] += 1
 
         screen.blit(score_text, (conf.TEXT_PADDING, 0))
         screen.blit(lives_text, (conf.SCREEN_WIDTH - (lives_text.get_width() + conf.TEXT_PADDING), 0))

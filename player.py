@@ -13,6 +13,7 @@ class Player(CircleShape):
         self.rotation = 0
         self.timer = 0
         self.powerups = Counter(conf.POWERUP_KINDS)
+        self.powerups["num_shots"] = 1
         
     def triangle(self) -> list[pygame.Vector2]:
         forward = pygame.Vector2(0, 1).rotate(self.rotation)
@@ -38,9 +39,19 @@ class Player(CircleShape):
             self.position.y = conf.PLAYER_RADIUS
         
     def shoot(self) -> None:
-        shot = Shot(self.position.x, self.position.y)
-        shot.velocity = pygame.Vector2(0, 1).rotate(self.rotation) * conf.PLAYER_SHOOT_SPEED_BASE * (1+self.powerups["shot_speed"]/5)
-        self.timer = conf.PLAYER_SHOOT_COOLDOWN_BASE / self.powerups["shot_rate"]
+        shots = [Shot(self.position.x, self.position.y) for _ in range(self.powerups["num_shots"])]
+        for shot in shots:
+            shot.velocity = pygame.Vector2(0, 1).rotate(self.rotation) * conf.PLAYER_SHOOT_SPEED_BASE * (1+self.powerups["shot_speed"]/3)
+        match self.powerups["num_shots"]:
+            case 1:
+                pass
+            case 2:
+                shots[0].velocity = shots[0].velocity.rotate(5)
+                shots[1].velocity = shots[1].velocity.rotate(-5)
+            case 3:
+                shots[0].velocity = shots[0].velocity.rotate(5)
+                shots[2].velocity = shots[2].velocity.rotate(-5)
+        self.timer = conf.PLAYER_SHOOT_COOLDOWN_BASE
         
     def update(self, dt: int) -> None:
         self.timer -= dt
